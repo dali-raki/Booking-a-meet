@@ -1,0 +1,208 @@
+﻿@page "/"
+@rendermode InteractiveServer
+
+<PageTitle>Home</PageTitle>
+
+<h1>Hi, Welcome to Booking WEB</h1>
+
+<form>
+    <label>Full Name</label>
+    <input @bind="infomeet.name" type="text" />
+
+    <label>Phone Number</label>
+    <input @bind="infomeet.phoneNumber" type="text" />
+
+    <label>Room</label>
+    <select @bind="infomeet.room">
+        <option value="1">1</option>
+        <option value="2">2</option>
+        <option value="3">3</option>
+        <option value="4">4</option>
+        <option value="5">5</option>
+    </select>
+
+    <label>Number of Hour</label>
+    <input @bind="infomeet.hour" type="number" />
+
+    <label>Select your Date and Time</label>
+    <input @bind="infomeet.date" type="datetime" />
+
+    <button @onclick="addMeet" type="button">Send</button>
+</form>
+
+@if (listmeet != null && listmeet.Count > 0)
+{
+    <table>
+        <thead>
+            <tr>
+                <th>Full Name</th>
+                <th>Phone Number</th>
+                <th>Room</th>
+                <th>Date</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var meet in listmeet)
+            {
+                <tr>
+                    <td>@meet.name</td>
+                    <td>@meet.phoneNumber</td>
+                    <td>@meet.room</td>
+                    <td>@meet.date.ToString("g")</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+else
+{
+    <p>No meetings scheduled.</p>
+}
+
+<!-- Modal Pop-Up for Success or Error Message -->
+@if (showModal)
+{
+    <div class="modal-overlay">
+        <div class="modal-content">
+            @if (modalMessage == "Booking successfully added!")
+            {
+                <p>@modalMessage</p>
+                <button @onclick="CloseModal">OK</button>
+            }
+            else
+            {
+                <p>@modalMessage</p>
+                <button @onclick="CloseModal" style="background-color:red">OK</button>
+                
+            }
+
+        </div>
+    </div>
+}
+
+@code {
+    @using Agile2TP2.Services
+    @using Agile2TP2.Models
+
+    BokingService bokingService = new BokingService();
+    BokingModel infomeet { get; set; } = new BokingModel();
+    public List<BokingModel> listmeet { get; set; } = new List<BokingModel>();
+
+    private string modalMessage = ""; // Holds success or error message
+    private bool showModal = false;    // Controls the visibility of the modal
+
+    public void addMeet()
+    {
+        if (bokingService.IsBookingConflict(listmeet, infomeet))
+        {
+            // Set error message and show the modal
+            modalMessage = "Booking conflict! This room is already booked during the selected time.";
+            showModal = true;
+        }
+        else
+        {
+            // Add the booking and show success message
+            bokingService.addMeeting(listmeet, infomeet);
+            modalMessage = "Booking successfully added!";
+            showModal = true;
+
+            // Reset the form after adding the meeting
+            infomeet = new BokingModel();
+            StateHasChanged();
+        }
+    }
+
+    // Method to close the modal
+    private void CloseModal()
+    {
+        showModal = false;
+    }
+}
+
+<style>
+    /* Styling for the form */
+    form {
+        margin-bottom: 20px;
+    }
+
+    label {
+        display: block;
+        margin: 10px 0 5px;
+        font-weight: bold;
+    }
+
+    input, select, button {
+        padding: 8px;
+        margin-bottom: 10px;
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+    button {
+        background-color: #4CAF50;
+        color: white;
+        border: none;
+        cursor: pointer;
+    }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+    /* Table Styling */
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+    }
+
+    th, td {
+        padding: 12px;
+        text-align: left;
+        border-bottom: 1px solid #ddd;
+    }
+
+    th {
+        background-color: #f2f2f2;
+    }
+
+    /* Modal Styles */
+    .modal-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: rgba(0, 0, 0, 0.5);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 1000;
+    }
+
+    .modal-content {
+        background-color: white;
+        padding: 20px;
+        border-radius: 5px;
+        max-width: 400px;
+        text-align: center;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    }
+
+        .modal-content p {
+            margin-bottom: 20px;
+        }
+
+        .modal-content button {
+            padding: 8px 16px;
+            border: none;
+            background-color: #4CAF50;
+            color: white;
+            border-radius: 3px;
+            cursor: pointer;
+        }
+
+            .modal-content button:hover {
+                background-color: #45a049;
+            }
+</style>
