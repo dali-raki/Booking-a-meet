@@ -7,13 +7,13 @@
 
 <form>
     <label>Full Name</label>
-    <input @bind="infomeet.name" type="text" />
+    <input @bind="infomeet.name" type="text"/>
 
     <label>Phone Number</label>
-    <input @bind="infomeet.phoneNumber" type="text" />
+    <input @bind="infomeet.phoneNumber" type="tel" pattern="[0-9]{10}"/>
 
     <label>Room</label>
-    <select @bind="infomeet.room">
+    <select @bind="infomeet.room" required>
         <option>Select Room</option>
         <option value="1">1</option>
         <option value="2">2</option>
@@ -23,10 +23,11 @@
     </select>
 
     <label>Number of Hour</label>
-    <input @bind="infomeet.hour" type="number" />
+    <input @bind="infomeet.hour" type="number" max="24" min="1"/>
+   
 
     <label>Select your Date and Time</label>
-    <input @bind="infomeet.date" type="datetime" />
+    <input @bind="infomeet.date" type="datetime"  />
 
     <button @onclick="addMeet" type="button">Send</button>
 </form>
@@ -86,7 +87,7 @@ else
     @using Agile2TP2.Models
 
     BokingService bokingService = new BokingService();
-    BokingModel infomeet { get; set; } = new BokingModel();
+    BokingModel infomeet { get; set; } = new BokingModel("", "", 0, "", DateTime.Now);
     public List<BokingModel> listmeet { get; set; } = new List<BokingModel>();
 
     private string modalMessage = ""; // Holds success or error message
@@ -97,7 +98,7 @@ else
         if (bokingService.IsBookingConflict(listmeet, infomeet))
         {
             // Set error message and show the modal
-            modalMessage = "Booking conflict! This room is already booked during the selected time.";
+            modalMessage = "Sry You can't Booking this Room.";
             showModal = true;
         }
         else
@@ -108,7 +109,7 @@ else
             showModal = true;
 
             // Reset the form after adding the meeting
-            infomeet = new BokingModel();
+            infomeet = new BokingModel("", "", 0, "",DateTime.Now);
             StateHasChanged();
         }
     }

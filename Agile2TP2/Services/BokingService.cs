@@ -16,11 +16,25 @@ namespace Agile2TP2.Services
 
         public bool IsBookingConflict(List<BokingModel> listBooking, BokingModel newBooking)
         {
-            return listBooking.Any(existingBooking =>
-                existingBooking.room == newBooking.room &&
-                existingBooking.date.Date == newBooking.date.Date &&
-                ((newBooking.date >= existingBooking.date && newBooking.date < existingBooking.date.AddHours(existingBooking.hour)) ||
-                 (existingBooking.date >= newBooking.date && existingBooking.date < newBooking.date.AddHours(newBooking.hour))));
+
+
+
+            //fix erruer of Hour
+            if(newBooking.hour <1 || newBooking.hour > 24 || newBooking.name=="")
+            {
+                return true;
+            }
+            else
+            {
+              
+                return listBooking.Any(existingBooking =>
+               existingBooking.room == newBooking.room &&
+               existingBooking.date.Date == newBooking.date.Date &&
+               ((newBooking.date >= existingBooking.date && newBooking.date < existingBooking.date.AddHours(existingBooking.hour)) ||
+                (existingBooking.date >= newBooking.date && existingBooking.date < newBooking.date.AddHours(newBooking.hour))));
+            }
+            
+           
         }
 
     }
